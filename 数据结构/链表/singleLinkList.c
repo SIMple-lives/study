@@ -79,7 +79,7 @@ void deleNode(Node *list,int data)
             free(current);
             break;
         }
-        pre=current;
+        pre=pre->next;
         current=current->next;
     }
     list->data--;
@@ -94,6 +94,15 @@ void print(Node *list)
         list=list->next;  
     }
     printf("\n"); 
+}
+
+void freeList(Node **L)
+{
+    while (*L) {
+        struct Node *temp = *L;
+        *L = (*L)->next;
+        free(temp);
+    }
 }
 
 int main()
@@ -113,5 +122,6 @@ int main()
     print(list);
     deleNode(list,2);
     print(list);
+    freeList(&list);
     return 0;
 }
