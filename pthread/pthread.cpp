@@ -6,6 +6,7 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include <boost/multiprecision/cpp_int.hpp>
 
 // Thread safe implementation of a Queue using a std::queue
 template <typename T>
@@ -22,7 +23,6 @@ public:
     bool empty() // 返回队列是否为空
     {
         std::unique_lock<std::mutex> lock(m_mutex); // 互斥信号变量加锁，防止m_queue被改变
-
         return m_queue.empty();
     }
     int size()
@@ -45,7 +45,6 @@ public:
         if (m_queue.empty())
             return false;
         t = std::move(m_queue.front()); // 取出队首元素，返回队首元素值，并进行右值引用
-
         m_queue.pop(); // 弹出入队的第一个元素​
         return true;
     }
@@ -154,9 +153,9 @@ public:
     }
 };
 
-long long calculate(int n)
+boost::multiprecision::cpp_int calculate(int n)
 {
-    long long num=1;
+    boost::multiprecision::cpp_int num=1;
     for(int i = 1;i<=n;i++)
     {
         num*=i;
@@ -182,7 +181,7 @@ void task()
     for(int  n:calNum)
     {
         auto future1 = pool.submit(calculate,n);
-        long long result = future1.get();
+        boost::multiprecision::cpp_int result = future1.get();
         std::cout << "result( "<< n << " ) = " << result << std::endl;
     }
     pool.shutdown();
