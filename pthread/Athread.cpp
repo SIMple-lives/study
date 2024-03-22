@@ -7,6 +7,7 @@
 #include <functional>
 #include <future>
 #include <atomic>
+#include <boost/multiprecision/cpp_int.hpp>
 
 class TaskQueue 
 {
@@ -21,7 +22,7 @@ public:
         return m_queue.empty();
     }
 
-    void enqueue(std::packaged_task<long long(int)> &&t) 
+    void enqueue(std::packaged_task<boost::multiprecision::cpp_int(int)> &&t) 
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_queue.push(std::move(t));
@@ -33,7 +34,7 @@ public:
         return m_queue.size();
     }
 
-    bool dequeue(std::packaged_task<long long(int)> &t) 
+    bool dequeue(std::packaged_task<boost::multiprecision::cpp_int(int)> &t) 
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         if (m_queue.empty()) 
@@ -46,7 +47,7 @@ public:
     }
 
 private:
-    std::queue<std::packaged_task<long long(int)>> m_queue;
+    std::queue<std::packaged_task<boost::multiprecision::cpp_int(int)>> m_queue;
     std::mutex m_mutex;
 };
 
@@ -86,10 +87,10 @@ public:
         }   
     }
 
-    std::future<long long> submit(std::function<long long(int)> f) 
+    std::future<boost::multiprecision::cpp_int> submit(std::function<boost::multiprecision::cpp_int(int)> f) 
     {
-        std::packaged_task<long long(int)> task(std::move(f));
-        std::future<long long> res = task.get_future();
+        std::packaged_task<boost::multiprecision::cpp_int(int)> task(std::move(f));
+        std::future<boost::multiprecision::cpp_int> res = task.get_future();
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_task.enqueue(std::move(task));
@@ -104,7 +105,7 @@ private:
     public:
         ThreadWork(ThreadPool *pool, int id) : m_pool(pool), m_id(id) {}
         void operator()() {
-            std::packaged_task<long long(int)> func;
+            std::packaged_task<boost::multiprecision::cpp_int(int)> func;
             bool dequeued;
             while (!m_pool->m_shutdown) 
             {
@@ -134,9 +135,9 @@ private:
     TaskQueue m_task;
 };
 
-long long factorial(int n) 
+boost::multiprecision::cpp_int factorial(int n) 
 {
-    long long result = 1;
+    boost::multiprecision::cpp_int result = 1;
     for (int i = 1; i <= n; ++i) 
     {
         result *= i;
@@ -161,8 +162,8 @@ void task()
     }
     for(size_t i=0;i<Num.size();i++)
     {
-        std::function<long long(int)> func=std::bind(factorial,Num[i]);
-        std::future<long long> res=pool.submit(func);
+        std::function<boost::multiprecision::cpp_int(int)> func=std::bind(factorial,Num[i]);
+        std::future<boost::multiprecision::cpp_int> res=pool.submit(func);
         std::cout << "result(" << Num[i] << ") = " << res.get() << std::endl;
     }
     pool.shutdown();
