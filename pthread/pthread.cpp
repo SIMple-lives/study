@@ -7,6 +7,25 @@
 #include <utility>
 #include <vector>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <chrono>
+
+class calculate_time
+{
+public:
+    calculate_time()
+    {
+        start_time = std::chrono::steady_clock::now();
+    }
+    ~calculate_time()
+    {
+        end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+        std::cout << "Calculating time : " << duration.count() << " microseconds" << std::endl;
+    }
+private:
+    std::chrono::time_point<std::chrono::steady_clock> start_time;
+    std::chrono::time_point<std::chrono::steady_clock> end_time;
+};
 
 // Thread safe implementation of a Queue using a std::queue
 template <typename T>
@@ -60,7 +79,7 @@ private:
         ThreadPool *m_pool; // 所属线程池
     public:
         // 构造函数
-        ThreadWorker(ThreadPool *pool, const int id) : m_pool(pool), m_id(id){}
+        ThreadWorker(ThreadPool *pool, const int id) : m_id(id),m_pool(pool) {}
         // 重载()操作
         void operator()()
         {
@@ -94,7 +113,8 @@ private:
 public:
     // 线程池构造函数
     ThreadPool(const int n_threads = 4)
-        : m_threads(std::vector<std::thread>(n_threads)), m_shutdown(false){}
+        : m_shutdown(false),m_threads(std::vector<std::thread>(n_threads)){}//之前的警告是由于成员变量的初始化顺序与他们在类中
+        //声明的顺序不匹配而引起的.c++中，成员变量的初始化顺序是按照他们在类中声明的顺序来执行的.而不是初始化列表的顺序
 
     //删除拷贝构造函数，且不能通过赋值来初始化另外一个对象
     ThreadPool(const ThreadPool &) = delete;
@@ -166,8 +186,6 @@ boost::multiprecision::cpp_int calculate(int n)
 
 void task()
 {
-    ThreadPool pool(4);
-    pool.init();
     int count ;
     std::cout << "请输入打算计算的数量 :" << std::endl;
     std::cin>>count;
@@ -178,7 +196,9 @@ void task()
         std::cout << "请输入第" << i+1 << "个数字:" << std::endl;
         std::cin>>calNum[i];
     }
-    for(int  n:calNum)
+    ThreadPool pool(4);
+    pool.init();
+    for(int n:calNum)
     {
         auto future1 = pool.submit(calculate,n);
         boost::multiprecision::cpp_int result = future1.get();
