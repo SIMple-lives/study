@@ -1,175 +1,73 @@
-#include <iostream>
-#include <mutex>
-#include <queue>
-#include <functional>
-#include <future>
-#include <thread>
-#include <utility>
-#include <vector>
-#include <boost/multiprecision/cpp_int.hpp>
-#include <chrono>
+#include "pthread.hpp"
+#include <filesystem>
 
-class calculate_time
+struct SearchConfig
 {
-public:
-    calculate_time()
-    {
-        start_time = std::chrono::steady_clock::now();
-    }
-    ~calculate_time()
-    {
-        end_time = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-        std::cout << "Calculating time : " << duration.count() << " microseconds" << std::endl;
-    }
-private:
-    std::chrono::time_point<std::chrono::steady_clock> start_time;
-    std::chrono::time_point<std::chrono::steady_clock> end_time;
+    std::string root_path;    //要搜索的根目录
+    std::string file_type;    //要搜索的文件类型，如 ".txt"、".cpp" 等
+    int max_concurrency;      // 最大并发数
+    int max_depth;            // 最大搜索深度
+    bool skip_hidden;         // 是否跳过隐藏文件或目录
+    std::vector<std::string> skip_paths;   // 要跳过的目录或文件的路径
 };
 
-// Thread safe implementation of a Queue using a std::queue
-template <typename T>
-class SafeQueue
+class Searcher
 {
-private:
-    std::queue<T> m_queue; //利用模板函数构造队列​
-    std::mutex m_mutex; // 访问互斥信号量
-
+    friend void task1();
 public:
-    SafeQueue() {}
-    SafeQueue(SafeQueue &&other) {}
-    ~SafeQueue() {}
-    bool empty() // 返回队列是否为空
+    Searcher(){};
+    Searcher(const SearchConfig&other)
     {
-        std::unique_lock<std::mutex> lock(m_mutex); // 互斥信号变量加锁，防止m_queue被改变
-        return m_queue.empty();
+        this->s=other;
     }
-    int size()
+    void set_config()
     {
-        std::unique_lock<std::mutex> lock(m_mutex); // 互斥信号变量加锁，防止m_queue被改变
-        return m_queue.size();
-    }
-
-    // 队列添加元素
-    void enqueue(T &t)
-    {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        m_queue.emplace(t);
-    }
-
-    // 队列取出元素
-    bool dequeue(T &t)
-    {
-        std::unique_lock<std::mutex> lock(m_mutex); // 队列加锁​
-        if (m_queue.empty())
-            return false;
-        t = std::move(m_queue.front()); // 取出队首元素，返回队首元素值，并进行右值引用
-        m_queue.pop(); // 弹出入队的第一个元素​
-        return true;
-    }
-};
-
-class ThreadPool
-{
-private:
-    class ThreadWorker // 内置线程工作类
-    {
-    private:
-        int m_id; // 工作id​
-        ThreadPool *m_pool; // 所属线程池
-    public:
-        // 构造函数
-        ThreadWorker(ThreadPool *pool, const int id) : m_id(id),m_pool(pool) {}
-        // 重载()操作
-        void operator()()
+        std::cout << "root_path is ? " << std::endl;
+        std::cin>>s.root_path;
+        std::cout << "file_type is? " << std::endl;
+        std::cin>>s.file_type;
+        std::cout << "max_concurrency is? " << std::endl;
+        std::cin>>s.max_concurrency;
+        std::cout << "max_depth is? " << std::endl;
+        std::cin>>s.max_depth;
+        std::cout << "skip_hidden is? " << std::endl;
+        std::cin>>s.skip_hidden;
+        std::cout << "skip_paths is? " << std::endl;
+        std::string skip_path;
+        while (std::cin >> skip_path && skip_path != "done") 
         {
-            std::function<void()> func; // 定义基础函数类func
-            bool dequeued; // 是否正在取出队列中元素
-            while (!m_pool->m_shutdown)
+            s.skip_paths.push_back(skip_path);
+        }
+    }
+    void searchfiles()
+    {
+        std::cout << "Starting search" << std::endl;
+        recursiveSearch(s.root_path, s.file_type, s.max_depth);
+    }
+private:
+    struct SearchConfig s;
+    void recursiveSearch(std::string &root_path, std::string &file_type, int max_depth)
+    {
+        if(max_depth == 0)//递归推出条件
+        return ;
+        for(const std::filesystem::directory_entry&entry : std::filesystem::directory_iterator(root_path))//类目录迭代器
+        {
+            if(std::filesystem::is_directory(entry))//判断是否是目录
             {
-                {
-                    // 为线程环境加锁，互访问工作线程的休眠和唤醒
-                    std::unique_lock<std::mutex> lock(m_pool->m_conditional_mutex);
-                    // 如果任务队列为空，阻塞当前线程
-                    if (m_pool->m_queue.empty())
-                    {
-                        m_pool->m_conditional_lock.wait(lock); // 等待条件变量通知，开启线程
-                    }
-                    // 取出任务队列中的元素
-                    dequeued = m_pool->m_queue.dequeue(func);
-                }
-                // 如果成功取出，执行工作函数
-                if (dequeued)
-                    func();
+                std::string currentDir=entry.path().string();//获取当前路径
+                if(std::find(s.skip_paths.begin(), s.skip_paths.end(), currentDir)!= s.skip_paths.end())//判断是否是要跳过的目录
+                continue;
+
+                if(s.skip_hidden && currentDir[0]=='.')
+                continue;
+                recursiveSearch(currentDir, file_type, max_depth-1);
+            }
+            //entension()是文件的扩展名
+            else if(std::filesystem::is_regular_file(entry)&&entry.path().extension()==file_type)//是否为搜索的文件
+            {
+                std::cout << "Found " << entry.path().string() << std::endl;
             }
         }
-    };
-
-    bool m_shutdown; // 线程池是否关闭
-    SafeQueue<std::function<void()>> m_queue; // 执行函数安全队列，即任务队列
-    std::vector<std::thread> m_threads; // 工作线程队列
-    std::mutex m_conditional_mutex; // 线程休眠锁互斥变量
-    std::condition_variable m_conditional_lock; // 线程环境锁，可以让线程处于休眠或者唤醒状态
-public:
-    // 线程池构造函数
-    ThreadPool(const int n_threads = 4)
-        : m_shutdown(false),m_threads(std::vector<std::thread>(n_threads)){}//之前的警告是由于成员变量的初始化顺序与他们在类中
-        //声明的顺序不匹配而引起的.c++中，成员变量的初始化顺序是按照他们在类中声明的顺序来执行的.而不是初始化列表的顺序
-
-    //删除拷贝构造函数，且不能通过赋值来初始化另外一个对象
-    ThreadPool(const ThreadPool &) = delete;
-    ThreadPool &operator=(const ThreadPool &) = delete;
-
-    ThreadPool(ThreadPool &&) = delete;
-    ThreadPool &operator=(ThreadPool &&) = delete;
-    // 初始化线程池
-    void init()
-    {
-        for (size_t i = 0; i < m_threads.size(); ++i)
-        {
-            m_threads.at(i) = std::thread(ThreadWorker(this, i)); // 分配工作线程
-        }
-    }
-
-    //关闭线程池
-    void shutdown()
-    {
-        m_shutdown = true;
-        m_conditional_lock.notify_all(); // 通知，唤醒所有工作线程
-
-        for (size_t i = 0; i < m_threads.size(); ++i)
-        {
-            if (m_threads.at(i).joinable()) // 判断线程是否在等待
-            {
-                m_threads.at(i).join(); // 将线程加入到等待队列
-            }
-        }
-    }
-
-    // 向线程池中添加任务
-    template <typename T, typename... Args>
-    auto submit(T &&t, Args &&...args) -> std::future<decltype(t(args...))>
-    {
-        // Create a function with bounded parameter ready to execute
-        std::function<decltype(t(args...))()> func = std::bind(std::forward<T>(t), std::forward<Args>(args)...); // 连接函数和参数定义，特殊函数类型，避免左右值错误
-
-        // Encapsulate it into a shared pointer in order to be able to copy construct
-        auto task_ptr = std::make_shared<std::packaged_task<decltype(t(args...))()>>(func);
-
-        // Warp packaged task into void function
-        std::function<void()> queue_func = [task_ptr]()
-        {
-            (*task_ptr)();
-        };
-
-        // 队列通用安全封包函数，并压入安全队列
-        m_queue.enqueue(queue_func);
-
-        // 唤醒一个等待中的线程
-        m_conditional_lock.notify_one();
-
-        // 返回先前注册的任务指针
-        return task_ptr->get_future();
     }
 };
 
@@ -207,8 +105,32 @@ void task()
     pool.shutdown();
 }
 
-int main()
+void task1()
 {
-    task();
+    Searcher s;
+    // 设置搜索器的配置信息
+    s.set_config();
+    // 初始化线程池，设置最大并发数
+    ThreadPool pool(s.s.max_concurrency);
+    pool.init();
+    // 提交搜索任务到线程池
+    pool.submit([&s](){
+        s.searchfiles();
+    });
+    // 等待搜索任务完成
+    
+
+    // 关闭线程池
+    pool.shutdown();
+}
+
+int main() {
+    task1();
     return 0;
 }
+
+// int main()
+// {
+//     task();
+//     return 0;
+// }
