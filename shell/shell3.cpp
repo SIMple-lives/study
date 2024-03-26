@@ -141,6 +141,10 @@ string linebuf::retlinebuf ()
 
 vector<vector<string>> linebuf::parse(string &s)
 {
+    if (std::all_of(s.begin(), s.end(), ::isspace)) 
+    {
+        return {}; 
+    }
     vector<vector<string>> tokens;
     istringstream iss(s);//可方便的从字符串中读取数据
     string root;
