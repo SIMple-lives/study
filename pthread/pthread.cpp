@@ -49,17 +49,24 @@ private:
     void recursiveSearch(std::string &root_path, std::string &file_type, int max_depth)
     {
         if(max_depth == 0)//递归推出条件
-        return ;
+        {
+            return ;
+        }
         for(const std::filesystem::directory_entry&entry : std::filesystem::directory_iterator(root_path))//类目录迭代器
         {
             if(std::filesystem::is_directory(entry))//判断是否是目录
             {
                 std::string currentDir=entry.path().string();//获取当前路径
-                if(std::find(s.skip_paths.begin(), s.skip_paths.end(), currentDir)!= s.skip_paths.end())//判断是否是要跳过的目录
-                continue;
+                if(std::find(s.skip_paths.begin(), s.skip_paths.end(), currentDir)!= s.skip_paths.end())
+                //判断是否是要跳过的目录
+                {
+                    continue;
+                }
 
                 if(s.skip_hidden && currentDir[0]=='.')
-                continue;
+                {
+                    continue;
+                }
                 recursiveSearch(currentDir, file_type, max_depth-1);
             }
             //entension()是文件的扩展名
