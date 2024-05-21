@@ -20,7 +20,7 @@ public:
     ~calculate_time()
     {
         end_time = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time); 
         std::cout << "Calculating time : " << duration.count() << " microseconds" << std::endl;
     }
 private:
@@ -70,7 +70,8 @@ public:
     }
 };
 
-class ThreadPool
+class 
+ThreadPool
 {
 private:
     class ThreadWorker // 内置线程工作类
@@ -180,7 +181,9 @@ public:
     void adjust_threads()
     {
         if(m_shutdown)
-        return ;
+        {
+            return ;
+        }
         int current_threads = m_threads.size();
         int current_tasks = m_queue.size();
         if(current_tasks>current_threads && current_tasks < m_maxThreads.load())
