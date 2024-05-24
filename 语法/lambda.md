@@ -208,3 +208,4 @@ auto circle_area = [pi = std::move(myPi)](double r) { return *pi * r * r; };
 cout << circle_area(1.0) << endl; // 3.1415
 ```
 
+[原文章](https://mqjyl2012.gitbook.io/algorithm/c-cpp/advanced-c++/lambda)
