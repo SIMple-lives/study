@@ -44,5 +44,5 @@ public:
     void S_MessageFile(int fd,std::string str);
     void S_ReceiveFile(int fd,std::string str);
 private:
-    // std::mutex recv_mutex;
-};
+    
+}; 
