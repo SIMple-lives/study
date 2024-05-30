@@ -65,8 +65,20 @@
 #define DELEGROUP 60
 #define HANDLEGROUPREQUEST 62
 #define DOGROUPREQUEST 63
+#define CHATGROUP 64
+#define GROUPCHAT 65
+#define DELESOMEONE 66
+#define NOSPEAKSOMEONE 67
+#define IFFRIEND 68
+#define IFINGROUP 69
+#define SENDFILE 70
+#define MESSAGEFILE 71
+#define RECEIVEFILE 73
 //消息状态
 #define FRIENDREQUEST 31
+
+#define NOFILES 72
+
 
 //无消息
 #define NOSIGN 43
@@ -92,3 +104,6 @@
 
 #define NOGROUP 58
 #define NOTGROUPOWNER 61
+
+
+#define FILENOTEXISTS 74
