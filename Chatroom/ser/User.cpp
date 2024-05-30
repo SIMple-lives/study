@@ -1477,7 +1477,7 @@ void S_User::S_ReceiveFile(int fd,std::string str)
     int file = open(path.c_str(),O_RDONLY);
     if(file == -1)
     {
-        std::cout << "Fail to open file" << std::endl;
+        std::cout << "Fail to open file" << std::endl; 
         Sen s;
         s.send_ok(fd,FILENOTEXISTS);
         return ;
