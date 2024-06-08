@@ -50,10 +50,12 @@ void Msg::run(std::string &message)
         //while(1)
         //{
         std::cout << "接收到 " <<friend_source << " 发送给 " << friend_dest << " 的消息 " << message << std::endl;
+        
         std::string send = friend_source +message;
         std::cout << send << std::endl;
         nlohmann::json j = {
             {"send",send}};
+        redis.Lpush(friend_dest+friend_source + "Message", j.dump());
         //std::cout << j.dump() << "    kashdkjaws" << std::endl;
         // std::cout << id_d << "               kashdkashdkj" << std::endl;
         std::string status;
@@ -255,4 +257,4 @@ void Msg::run_Group(std::string &message,std::string &id)
             std::cout << "Adding to offline messages" << std::endl;
             redis.Lpush(friend_dest + "offline", j.dump());
         }
-}
+}%   
