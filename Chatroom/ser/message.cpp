@@ -257,4 +257,4 @@ void Msg::run_Group(std::string &message,std::string &id)
             std::cout << "Adding to offline messages" << std::endl;
             redis.Lpush(friend_dest + "offline", j.dump());
         }
-}
+}%   
