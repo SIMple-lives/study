@@ -169,7 +169,12 @@ void S_User::S_Signout(int fd,std::string str)
 
             // 注销操作：删除 "name_id" 哈希表中指定用户名的数据
             int deleteNameId = redis.HashDele("name_id", getpassword["username"]);
-
+            //获取到好友列表，删除好友列表中的自己
+            std::vector<std::string> friends = redis.Zrange(id,0,-1);
+            for(auto I : friends)
+            {
+                redis.Zrem(I,id);
+            }
             std::cout << "注销成功 " << std::endl;
             Sen s;
             s.send_ok(fd, SUCCESS);
