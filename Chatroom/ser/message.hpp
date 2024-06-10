@@ -3,7 +3,6 @@
 #include "../sen_rec/sen_rec.hpp"
 #include "../sql/sql.hpp"
 
-
 class Msg
 {
 public:
