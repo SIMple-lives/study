@@ -123,6 +123,15 @@ void Msg::run(std::string &message)
         {
             std::cout << "Adding to offline messages" << std::endl;
             redis.Lpush(friend_dest+friend_source + "offline", j.dump());
+            if(redis.Zstatus(id_d+"chat",id_s,status))
+            {
+                status += 1;
+                redis.Zadd(id_d+"chat",status,id_s);
+            }
+            else
+            {
+                redis.Zadd(id_d+ "chat",1,id_s);
+            }
         }
         //  while (true) 
         //  {
@@ -164,96 +173,105 @@ void Msg::run_Group(std::string &message,std::string &id)
     //std::cout << "dsadjlasjd" << std::endl;
     
     std::string friend_source = redis.HashGet("id_name", id_s);
-    std::string friend_dest = redis.HashGet("G_id_name", id_d);
+    std::string friend_dest = redis.HashGet("id_name", id);
     std::cout << friend_source << std::endl;
     std::cout << friend_dest << std::endl;
-        int status_b ;
-        if(redis.Zstatus(id_d,id_s,status_b))
+    int status_b ;
+    if(redis.Zstatus(id_d,id_s,status_b))
+    {
+        if(status_b ==NOTSPEAK)
         {
-            if(status_b ==NOTSPEAK)
-            {
-                std::cout << "你已被禁言" << std::endl;
-                Sen s;
-                nlohmann::json j = {
-                    {"send","!"+message}
-                };
-                s.send_cil(this->m_source,j.dump());
-                return;
-            }
+            std::cout << "你已被禁言" << std::endl;
+            Sen s;
+            nlohmann::json j = {
+                {"send","!"+message}
+            };
+            s.send_cil(this->m_source,j.dump());
+            return;
         }
-        std::cout << "接收到 " <<friend_source << " 发送给 " << friend_dest << " 的消息 " << message << std::endl;
-        std::string send = friend_source +message;
-        std::cout << send << std::endl;
-        nlohmann::json j = {
-            {"send",send}};
+    }
+    std::cout << "接收到 " <<friend_source << " 发送给 " << friend_dest << " 的消息 " << message << std::endl;
+    std::string send = friend_source +message;
+    std::cout << send << std::endl;
+    nlohmann::json j = {
+        {"send",send}};
        
-        std::string status;
-        if (redis.Ifexit("online", id)) 
+    std::string status;
+    if (redis.Ifexit("online", id)) 
+    {
+        std::cout << "dsaklsdj" << std::endl;
+        if (redis.Zstatus("chat", id,status)) 
         {
-            std::cout << "dsaklsdj" << std::endl;
-            if (redis.Zstatus("chat", id,status)) 
+            std::cout << "1" << std::endl;
+            std::cout << "Status found: " << status << std::endl;
+            if (status == id_d) 
             {
-                std::cout << "1" << std::endl;
-                std::cout << "Status found: " << status << std::endl;
-                if (status == id_d) 
-                {
-                    Sen s;
-                    std::cout << "直接发送" << std::endl;
-                    s.send_cil(this->m_dest, j.dump());
-                } 
-                else  
-                {
-                    std::cout << "对方没有在该群聊 " << std::endl;
-                    redis.Lpush(friend_dest + "offline", j.dump());
-                    Sen s;
-                    std::string message = "群聊" + id_d + "给你发送了一条消息 !" ;
-                    nlohmann::json ja = {
-                        {"send",message}
-                    };
-                    s.send_cil(this->m_dest, ja.dump());
-                    
-                   // redis.Lpush(friend_dest + "offline", j.dump());
-                    int status ;
-                    if(redis.Zstatus(id_d+"chat",id_s,status))
-                    {
-                        status += 1;
-                        redis.Zadd(id_d+"chat",status,id_s);
-                    }
-                    else
-                    {
-                        redis.Zadd(id_d + "chat",1,id_s);
-                    }
-                }
-            }
-            else 
+                Sen s;
+                std::cout << "直接发送" << std::endl;
+                s.send_cil(this->m_dest, j.dump());
+            } 
+            else  
             {
-                std::cout << "对方在初始界面 " << std::endl;
-                std::cout << "Adding to offline messages" << std::endl;
+                std::cout << "对方没有在该群聊 " << std::endl;
                 redis.Lpush(friend_dest + "offline", j.dump());
                 Sen s;
-                std::string message = "好友" + id_s + "给你发送了一条消息 !" ;
+                std::string message = "群聊" + id_d + "给你发送了一条消息 !" ;
                 nlohmann::json ja = {
                     {"send",message}
                 };
-                //s.send_cil(this->m_dest, ja.dump());
-                //本来是要直接发送过去，但是没有线程接收
-                redis.Lpush(friend_dest + "offline", j.dump());
-                // redis.Lpush(friend_dest + "online",j.dump());
+                s.send_cil(this->m_dest, ja.dump());
+                    
+                   // redis.Lpush(friend_dest + "offline", j.dump());
                 int status ;
-                if(redis.Zstatus(id_d+"chat",id_s,status))
+                if(redis.Zstatus(id+"Gchat",id_d,status))
                 {
                     status += 1;
-                    redis.Zadd(id_d+"chat",status,id_s);
+                    redis.Zadd(id+"Gchat",status,id_d);
                 }
                 else
                 {
-                    redis.Zadd(id_d+ "chat",1,id_s);
+                    redis.Zadd(id + "Gchat",1,id_d);
                 }
             }
-        } 
+        }
         else 
         {
+            std::cout << "对方在初始界面 " << std::endl;
             std::cout << "Adding to offline messages" << std::endl;
             redis.Lpush(friend_dest + "offline", j.dump());
+            Sen s;
+            std::string message = "好友" + id_s + "给你发送了一条消息 !" ;
+            nlohmann::json ja = {
+                {"send",message}
+            };
+                //s.send_cil(this->m_dest, ja.dump());
+                //本来是要直接发送过去，但是没有线程接收
+            redis.Lpush(friend_dest + "offline", j.dump());
+                // redis.Lpush(friend_dest + "online",j.dump());
+            int status ;
+            if(redis.Zstatus(id+"Gchat",id_d,status))
+            {
+                status += 1;
+                redis.Zadd(id+"Gchat",status,id_d);
+            }
+            else
+            {
+                redis.Zadd(id+ "Gchat",1,id_d);
+            }
         }
+    } 
+    else 
+    {
+        std::cout << "Adding to offline messages" << std::endl;
+        redis.Lpush(friend_dest + "offline", j.dump());
+        if(redis.Zstatus(id+"Gchat",id_d,status))
+        {
+            status += 1;
+            redis.Zadd(id+"Gchat",status,id_d);
+        }
+        else
+        {
+            redis.Zadd(id+ "Gchat",1,id_d);
+        }
+    }
 }
