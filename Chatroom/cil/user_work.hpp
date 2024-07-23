@@ -2,15 +2,30 @@
 #include "../head/define.hpp"
 #include "../cil/User.hpp"
 #include "../cil/prich.hpp"
+#include <boost/mpl/identity.hpp>
+#include <mutex>
 
 class User_work :public Menu
 {
 public:
-    User_work() = default;
-    User_work(int fd,std::string id)
+    User_work() :m_fd(0) ,m_id("") ,m_running(true)
     {
-        this->m_fd = fd;
-        this->m_id = id;
+        
+        // start();
+    }
+    User_work(int fd,std::string id) :m_fd(fd),m_id(id),m_running(true)
+    {
+        
+        // start();
+    }
+
+    ~User_work()
+    {
+        m_running = false;
+        if(refreshThread.joinable())
+        {
+            refreshThread.join();
+        }
     }
     virtual void show_friend(std::string id,std::string name ,std::string telephone,int status) override
     {
@@ -104,35 +119,51 @@ public:
     void Dele_Group(std::string id,int fd);
     void Handle_Group_Requset(std::string id,int fd);
     void Manage_Group(std::string id,int fd);
-    void receiveMessagesFromServer()
+    void show_History();
+    // void receiveMessagesFromServer()
+    // {
+    //     while (true)
+    //     {
+    //         // 接收服务器发来的消息
+    //         std::string message;
+    //         Rec rec ;
+    //         rec.recv_cil(m_fd,message);
+    //         //std::cout << message << std::endl;
+
+    //         nlohmann::json js = nlohmann::json::parse(message);
+    //         std::string receive = js["send"];
+    //         std::cout << receive << std::endl;
+    //         // 使用 Rec 类或其他适当的方法从服务器接收消息
+    //         // 假设接收到的消息保存在 message 中
+
+    //         // 处理接收到的消息
+    //         // 这里你可以根据接收到的消息类型进行适当的处理
+    //         // 例如，如果消息是私聊消息，可以显示给用户
+    //     }
+    // }
+
+    // void startMessageReceiver()
+    // {
+    //     // 创建并启动接收消息的线程
+    //     messageReceiverThread = std::thread(&User_work::receiveMessagesFromServer, this);
+    // }
+
+private:
+
+    void statr()
     {
-        while (true)
+        this->refreshThread = std::thread(&User_work::refresh_time,this);
+    }
+    void refresh_time()
+    {
+        while(m_running)
         {
-            // 接收服务器发来的消息
-            std::string message;
-            Rec rec ;
-            rec.recv_cil(m_fd,message);
-            //std::cout << message << std::endl;
-
-            nlohmann::json js = nlohmann::json::parse(message);
-            std::string receive = js["send"];
-            std::cout << receive << std::endl;
-            // 使用 Rec 类或其他适当的方法从服务器接收消息
-            // 假设接收到的消息保存在 message 中
-
-            // 处理接收到的消息
-            // 这里你可以根据接收到的消息类型进行适当的处理
-            // 例如，如果消息是私聊消息，可以显示给用户
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::unique_lock <std::mutex> lock(m_mutex);
+            this->Refresh();
         }
     }
 
-    void startMessageReceiver()
-    {
-        // 创建并启动接收消息的线程
-        messageReceiverThread = std::thread(&User_work::receiveMessagesFromServer, this);
-    }
-
-private:
     std::string getCurrentTime() 
     {
         auto now = std::chrono::system_clock::now();
@@ -167,7 +198,10 @@ private:
         // 打印居中字符串
         std::cout << centeredStr << std::endl;
     }
+
     int m_fd;
     std::string m_id;
-    std::thread messageReceiverThread;
+    std::thread refreshThread;
+    std::atomic<bool> m_running;
+    std::mutex m_mutex;
 };
