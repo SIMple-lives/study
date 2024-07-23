@@ -131,6 +131,10 @@ void User_work::handleFriendRequset(std::vector<std::string> &id,std::vector<std
 
 void User_work::PrivateChat()
 {
+    // if(this->refreshThread.joinable())
+    // {
+    //     this->refreshThread.join();
+    // }
     std::cout << "Enter the id of the friend you want to chat: ";
     std::string id;
     std::cin >> id;
@@ -163,6 +167,7 @@ void User_work::PrivateChat()
             this->UnBlockFriend(id);
         }
     }
+    // this->start();
 }
 
 void User_work::UnBlockFriend(std::string  &friend_id)
@@ -474,7 +479,7 @@ void User_work::Refresh()
     status = r.recv_ok(this->m_fd);
     if(status == NOSIGN)
     {
-
+        // std::cout << "没有消息" << std::endl;
     }
     else if(status == SUCCESS)
     {
@@ -482,7 +487,12 @@ void User_work::Refresh()
         r.recv_cil(this->m_fd,sign);
         nlohmann::json js = nlohmann::json::parse(sign);
         std::vector<std::string> msg = js["send"];
+        std::vector<std::string> Gmsg = js["Gsend"];
         for(auto i:msg)
+        {
+            std::cout << i << std::endl;
+        }
+        for(auto i:Gmsg)
         {
             std::cout << i << std::endl;
         }
@@ -910,16 +920,50 @@ void User_work::Manage_Group(std::string id,int fd)
     std::cout << "请输入你要管理的操作" << std::endl;
     std::cout << "1.踢出用户" << std::endl;
     std::cout << "2.禁言用户" << std::endl;
+    std::cout << "3.解除禁言" << std::endl;
+    std::cout << "4.添加管理员" << std::endl;
+    std::cout << "5.取消管理员" << std::endl;
     int operation;
     std::cin >> operation;
-    if(operation == 1)
+    switch(operation)
     {
-        operation = DELESOMEONE;
+        case 1:
+        {
+            operation = DELESOMEONE;
+            break;
+        }
+        case 2:
+        {
+            operation = NOSPEAKSOMEONE;
+            break;
+        }
+        case 3:
+        {
+            operation = SPEAKSOMEONE;
+            break;
+        }
+        case 4:
+        {
+            operation = ADDGROUPMANGER;
+            break;
+        }
+        case 5:
+        {
+            operation = DELEGROUPMANGER;
+        }
     }
-    else 
-    {
-        operation = NOSPEAKSOMEONE;
-    }
+    // if(operation == 1)
+    // {
+    //     operation = DELESOMEONE;
+    // }
+    // else if(operation == 2)
+    // {
+        
+    // }
+    // else 
+    // {
+    //     operation = NOSPEAKSOMEONE;
+    // }
     nlohmann::json Manage_Group_request = {
         {"id",id},
         {REQUEST,operation},
@@ -951,7 +995,74 @@ void User_work::Manage_Group(std::string id,int fd)
     {
         std::cout << "成功进行该操作" << std::endl;
     }
+    else if(status == NB)
+    {
+        std::cout << "你真的是倒反天罡，删除群主" << std::endl;
+    }
+    else if(status == NOHIGH)
+    {
+        std::cout << "你没有权限进行该操作" << std::endl;
+    }
+    // else if()
+    // {
+    
+    // }
     else {
+    
+    }
+}
+
+void User_work::show_History()
+{
+    std::cout << "请输入聊天id:" << std::endl;
+    std::string chat_id;
+    std::cin >> chat_id;
+    nlohmann::json show_history_request = {
+        {"id",this->m_id},
+        {REQUEST,SHOWHISTORY},
+        {"Chat_id",chat_id}
+    };
+    Sen s;
+    s.send_cil(this->m_fd,show_history_request.dump());
+    Rec r;
+    int status;
+    status = r.recv_ok(this->m_fd);
+    if(status == NOID)
+    {
+        std::cout << "没有该聊天id" << std::endl;
+    }
+    else if(status == NOTINGROUP)
+    {
+        std::cout << "你不在该群聊" << std::endl;
+    }
+    else if(status == NOFRIEND)
+    {
+        std::cout << "你不在该好友列表" << std::endl;
+    }
+    else if(status == SUCCESS)
+    {
+        std::string str;
+        r.recv_cil(this->m_fd,str);
+        nlohmann::json show_history_json = nlohmann::json::parse(str);
+        std::vector<std::string> eraly = show_history_json["sql"];
+        std::vector<std::string> now = show_history_json["redis"];
+        if(eraly.size()!=0&&now.size()!=0)
+        {
+            std::cout << "--------------------------------------------------" << std::endl;
+        }
+        for(int i=0;i<eraly.size();i++)
+        {
+            nlohmann::json show_history_json = nlohmann::json::parse(eraly[i]);
+            std::cout << show_history_json["send"] << std::endl;
+        }
+        for(int i=now.size()-1;i>=0;i--)
+        {
+            nlohmann::json show_history_json = nlohmann::json::parse(now[i]);
+            std::cout << show_history_json["send"] << std::endl;
+        }
+    }
+    else 
+    {
     
     }
 }
