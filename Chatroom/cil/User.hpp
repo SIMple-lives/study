@@ -22,6 +22,7 @@ public:
     void Exit(int fd);
 
     void Work(int fd);
+
    
     void printCentered(const std::string& str, int lineLength) 
     {
@@ -64,7 +65,9 @@ public:
         printCentered("10. 群聊", 44);
         printCentered("11. 刷新",44);
         printCentered("12. 文件",44);
-        printCentered("13. 退出",44);
+        printCentered("13. 历史记录",48);
+        printCentered("14. 退出",44);
+
         std::cout << std::setw(50) << std::setfill('-') << '-' << std::endl; // 横线分隔
         std::cout << std::setw(50) << std::setfill('-') << '-' << std::endl; // 横线分隔
         
@@ -118,6 +121,8 @@ public:
         return ret;
     }
 private:
+
+    
     void setid(std::string id)
     {
         this->id = id;
