@@ -307,7 +307,10 @@ void Users::Work(int fd)
                 f.Run();
                 break;
             }
-            case 13: 
+            case 13:
+                user_work.show_History();
+                break;
+            case 14: 
                 user_work.Quit();
                 return;
             default:
