@@ -74,6 +74,10 @@
 #define SENDFILE 70
 #define MESSAGEFILE 71
 #define RECEIVEFILE 73
+#define SPEAKSOMEONE 75
+#define ADDGROUPMANGER 76
+#define DELEGROUPMANGER 77
+#define SHOWHISTORY 80
 //消息状态
 #define FRIENDREQUEST 31
 
@@ -82,7 +86,7 @@
 
 //无消息
 #define NOSIGN 43
-
+#define NOID 81
 
 //空格
 #define SPACE "\t\b\b\b\b\b"
@@ -95,6 +99,8 @@
 
 #define OKSPEAK 51
 #define NOTSPEAK 52
+#define NOHIGH 78
+#define NB 79
 
 
 #define ISME 49
