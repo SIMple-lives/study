@@ -8,7 +8,7 @@ public:
     Prich() = default;
     Prich(int fd, std::string friend_id, std::string id) : m_fd(fd), m_friend(friend_id), m_id(id) {}
     ~Prich() = default;
-
+    
     // 获取fd
     int getFd() const { return m_fd; }
     // 获取id
@@ -78,6 +78,11 @@ private:
                     nlohmann::json parse = nlohmann::json::parse(message);
                     int terminalWidth = getTerminalWidth();
                     printRightAligned(parse["send"], terminalWidth);
+                    if (parse["send"] == "exit")
+                    {
+                        exitRequested = true;
+                        return;
+                    }
                     if (exitRequested)
                     {
                         return;
