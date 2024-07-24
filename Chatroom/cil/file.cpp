@@ -1,5 +1,7 @@
 #include "../cil/file.hpp"
+#include <cstddef>
 #include <iostream>
+#include <sys/types.h>
 
 
 const int BUFFER_SIZE = 1024;
@@ -314,7 +316,8 @@ void File::Receive_file()
     }
     else if (status == SUCCESS)
     {
-        status = r.recv_ok(this->m_fd);
+        size_t status = r.recv_ok_Long(this->m_fd);
+        std::cout << "文件大小为 " << status << std::endl;
         std::filesystem::path dir = "../test1/";
         if (!std::filesystem::exists(dir))
         {
@@ -336,9 +339,26 @@ void File::Receive_file()
             std::cerr << "Failed to open file for writing" << std::endl;
             return;
         }
-        ssize_t len;
-        const size_t BUFFER_SIZE = 4096;
-        char buffer[BUFFER_SIZE];
+
+        int original_flags = fcntl(this->m_fd, F_GETFL, 0);
+        if(original_flags == -1)
+        {
+            std::cout << "Failed to get file descriptor flags" << std::endl;
+            Sen s;
+            s.send_ok(this->m_fd,FILENOTEXISTS);
+            return ;
+        }
+        if(fcntl(this->m_fd,F_SETFL,original_flags &O_NONBLOCK) == -1)
+        {
+            std::cout << "Failed to set file descriptor to blocking mode" << std::endl;
+            Sen s;
+            s.send_ok(this->m_fd,FAILURE);
+            return ;
+        }
+
+        int len;
+        // const size_t BUFFER_SIZE = 4096;
+        char buffer[BUFSIZ];
         off_t total_received = 0;
 
         try
@@ -359,8 +379,12 @@ void File::Receive_file()
                 fwrite(buffer, 1, len, fp);
                 total_received += len;
 
-                float progress = static_cast<float>(total_received) / status * 100;
-                std::cout << "Progress: " << progress << "%" << std::endl;
+                // float progress = static_cast<float>(total_received) / status * 100;
+                // std::cout << "Progress: " << progress << "%" << std::endl;
+            }
+            if(fcntl(this->m_fd,F_SETFL,original_flags) == -1)
+            {
+                std::cout << "Failed to set file descriptor to blocking mode" << std::endl;
             }
         }
         catch (...)
