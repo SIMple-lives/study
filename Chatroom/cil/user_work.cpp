@@ -1050,13 +1050,15 @@ void User_work::show_History()
         {
             std::cout << "--------------------------------------------------" << std::endl;
         }
-        for(int i=0;i<eraly.size();i++)
+        for(int i=eraly.size()-1;i>=0;i--)
         {
-            nlohmann::json show_history_json = nlohmann::json::parse(eraly[i]);
+            //nlohmann::json show_history_json = nlohmann::json::parse(eraly[i]);
             std::cout << show_history_json["send"] << std::endl;
+            std::cout << eraly[i] << std::endl;
         }
         for(int i=now.size()-1;i>=0;i--)
         {
+            std::cout << "34646" << std::endl;
             nlohmann::json show_history_json = nlohmann::json::parse(now[i]);
             std::cout << show_history_json["send"] << std::endl;
         }
