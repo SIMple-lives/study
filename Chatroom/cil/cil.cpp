@@ -17,11 +17,12 @@ int main(int argc,char** argv)
     term.c_cc[VEOF] = _POSIX_VDISABLE;
     tcsetattr(STDOUT_FILENO, TCSANOW, &term);
 
+
     //禁用ctrl+C ctr+z
     signal(SIGINT,SIG_IGN); //c
     signal(SIGTSTP,SIG_IGN); //z
     signal(SIGQUIT,SIG_IGN); // \
-
+ 
     std::string server_addr = "127.0.0.1";
     int port = port;
     if(argc>=2)
