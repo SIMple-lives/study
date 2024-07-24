@@ -1,6 +1,14 @@
 #include "../cil/prich.hpp"
 #include "../head/define.hpp"
 
+bool isIllegalSequence(const std::string& sequence)
+{
+    static const std::set<std::string> illegalSequences = {
+        "^[OA", "^[OB", "^[OD", "^[OC", "^[[3~", "^[OF", "^[[6~", "^[[OH", "^[[5~", "^[[OM"
+    };
+    return illegalSequences.count(sequence) > 0;
+}
+
 void Prich::run()
 {
     try
@@ -50,8 +58,9 @@ void Prich::run()
                     {
                         userInput += '+'; // Convert space to '+'
                     }
-                    else if (c == '\x1B') // ASCII for Esc
+                    else if (c == '\x1B') // 退出按键
                     {
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                         try
                         {
                             Sen s;
@@ -75,13 +84,14 @@ void Prich::run()
                         userInput += c;
                     }
                 }
-
+                
                 // Check if Esc was pressed
                 if (escPressed)
                 {
                     break;
                 }
 
+                
                 // If input is not empty, process it
                 if (!userInput.empty())
                 {
