@@ -1,4 +1,5 @@
 #include "../head/head.hpp"
+#include <cstddef>
 
 class Sen
 { 
@@ -6,6 +7,7 @@ public:
     int writen(int fd,char *buf,int len);
     void send_cil(int fd,const std::string &buf);
     void send_ok(int fd,int status);
+    void send_ok(int fd,size_t status);
 };
 
 class Rec
@@ -14,6 +16,7 @@ public:
     int readn(int fd,char *buf,int len);
     int recv_cil(int fd,std::string &buf);
     int recv_ok(int fd);
+    size_t recv_ok_Long(int fd);
 };
 
 inline int Sen::writen(int fd,char *buf,int len)
@@ -65,6 +68,19 @@ inline void Sen::send_cil(int fd,const std::string &buf)
 inline void Sen::send_ok(int fd,int status)
 {
     if(send(fd,&status,sizeof(int),0)==-1)
+    {
+        std::cerr << "Error sending data: " << strerror(errno) << std::endl;
+        close(fd);
+    }
+    else 
+    {
+        std::cout << "Status sent successfully" << std::endl;
+    }    
+}
+
+inline void Sen::send_ok(int fd,size_t status)
+{
+    if(send(fd,&status,sizeof(size_t),0)==-1)
     {
         std::cerr << "Error sending data: " << strerror(errno) << std::endl;
         close(fd);
@@ -141,4 +157,18 @@ inline int Rec::recv_ok(int fd)
     return status;
 }
 
+inline size_t Rec::recv_ok_Long(int fd)
+{
+    size_t status;
+    ssize_t recv_bytes = recv(fd, &status, sizeof(size_t), 0);
+    if (recv_bytes == -1)
+    {
+        std::cout << "recv state failed" << std::endl;
+    }
+    else if (recv_bytes == 0) // 客户端断开连接
+    {
+        std::cout << "Connection closed by peer." << std::endl;
+    }
+    return status;
+}
 //rev_ok
