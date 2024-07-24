@@ -9,7 +9,8 @@
 int redisAsyncContext::HashDele(const std::string &key, const std::string &field)
 {
     std::string cmd = "hdel " + key + " " + field;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "hdel %s %s", key.c_str(), field.c_str());
     int num = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return num;
@@ -18,7 +19,8 @@ int redisAsyncContext::HashDele(const std::string &key, const std::string &field
 int redisAsyncContext::HashExit(const std::string &key, const std::string &field)
 {
     std::string cmd = "hexists " + key + " " + field;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "hexists %s %s", key.c_str(), field.c_str());
     int num = this->m_reply->integer;
     freeReplyObject(this->m_reply);
     return num;
@@ -27,7 +29,8 @@ int redisAsyncContext::HashExit(const std::string &key, const std::string &field
 std::string redisAsyncContext::HashGet(const std::string &key,const std::string &field)
 {
     std::string cmd = "hget " + key + " " + field;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "hget %s %s", key.c_str(), field.c_str());
     std::string ret = this->m_reply->str;
     freeReplyObject(this->m_reply);
     return ret;
@@ -36,7 +39,8 @@ std::string redisAsyncContext::HashGet(const std::string &key,const std::string 
 int redisAsyncContext::HashSet(const std::string &key,const std::string &field, const std::string &value)
 {
     std::string cmd = "hmset " + key + " " + field + " " + value ;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "hmset %s %s %s", key.c_str(), field.c_str(), value.c_str());
     int type = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return type;
@@ -46,7 +50,8 @@ std::unordered_map<std::string, std::string> redisAsyncContext::HashGetAll(const
 {
     std::unordered_map<std::string, std::string> result;
     std::string cmd = "HGETALL " + key;
-    m_reply = (redisReply *)redisCommand(m_connettion, cmd.c_str());
+    // m_reply = (redisReply *)redisCommand(m_connettion, cmd.c_str());
+    m_reply = (redisReply *)redisCommand(m_connettion, "HGETALL %s", key.c_str());
     if (m_reply->type == REDIS_REPLY_ARRAY) 
     {
         for (size_t i = 0; i < m_reply->elements; i += 2) 
@@ -61,7 +66,8 @@ std::unordered_map<std::string, std::string> redisAsyncContext::HashGetAll(const
 int redisAsyncContext::HashClear(const std::string &key) 
 {
     std::string cmd = "DEL " + key;
-    m_reply = (redisReply *)redisCommand(m_connettion, cmd.c_str());
+    // m_reply = (redisReply *)redisCommand(m_connettion, cmd.c_str());
+    m_reply = (redisReply *)redisCommand(m_connettion, "DEL %s", key.c_str());
     int type = m_reply->type;
     freeReplyObject(m_reply);
     return type;
@@ -71,7 +77,8 @@ int redisAsyncContext::HashClear(const std::string &key)
 int redisAsyncContext::Insert(const std::string &key, const std::string&field)
 {
     std::string cmd = "sadd " + key + " " + field;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "sadd %s %s", key.c_str(), field.c_str());
     int type = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return type;
@@ -80,7 +87,8 @@ int redisAsyncContext::Insert(const std::string &key, const std::string&field)
 int redisAsyncContext::Ifexit(const std::string &key, const std::string &field)
 {
     std::string cmd = "sismember " + key + " " + field;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "sismember %s %s", key.c_str(), field.c_str());
     int type = this->m_reply->integer;
     freeReplyObject(this->m_reply);
     return type;
@@ -89,17 +97,29 @@ int redisAsyncContext::Ifexit(const std::string &key, const std::string &field)
 int redisAsyncContext::Delevalue(const std::string &key, const std::string &value) 
 {
     std::string cmd = "srem  " + key + "  " + value;
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "srem %s %s", key.c_str(), value.c_str());
     int p = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return p;
 }   
 
+int redisAsyncContext::DeleAll(const std::string &key)
+{
+    std::string cmd = "DEL " + key;
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "DEL %s", key.c_str());
+    int type = this->m_reply->type;
+    freeReplyObject(this->m_reply);
+    return type;
+}
+
 //有序集合的相关操作
 int redisAsyncContext::Zadd(const std::string &key, int status,const std::string &member)
 {
     std::string cmd = "zadd " + key + " " + std::to_string(status) + " " + member;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "zadd %s %d %s", key.c_str(), status, member.c_str());
     int type = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return type;
@@ -108,7 +128,8 @@ int redisAsyncContext::Zadd(const std::string &key, int status,const std::string
 int redisAsyncContext::Zadd(const std::string &key, std::string status,const std::string &member)
 {
     std::string cmd = "zadd " + key + " " + status + " " + member;
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "zadd %s %s %s", key.c_str(), status.c_str(), member.c_str());    
     int type = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return type;
@@ -116,7 +137,8 @@ int redisAsyncContext::Zadd(const std::string &key, std::string status,const std
 std::vector<std::string> redisAsyncContext::Zrange(const std::string &key, int start, int stop)
 {
     std::string cmd = "zrange " + key + " " + std::to_string(start) + " " + std::to_string(stop);
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "zrange %s %d %d", key.c_str(), start, stop);
     std::vector<std::string> members;
     if (this->m_reply->type == REDIS_REPLY_ARRAY)
     {
@@ -132,7 +154,8 @@ std::vector<std::string> redisAsyncContext::Zrange(const std::string &key, int s
 int redisAsyncContext::Zrem(const std::string &key, const std::string &member)
 {
     std::string cmd = "zrem " + key + " " + member;
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "zrem %s %s", key.c_str(), member.c_str());
     int type = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return type;
@@ -141,7 +164,8 @@ int redisAsyncContext::Zrem(const std::string &key, const std::string &member)
 int redisAsyncContext::Zstatus(const std::string &key, const std::string &member, int &status)
 {
     std::string cmd = "zscore " + key + " " + member;
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "zscore %s %s", key.c_str(), member.c_str());
     if (this->m_reply->type == REDIS_REPLY_STRING)
     {
         status = std::stoi(this->m_reply->str);
@@ -155,7 +179,8 @@ int redisAsyncContext::Zstatus(const std::string &key, const std::string &member
 int redisAsyncContext::Zstatus(const std::string &key, const std::string &member, std::string &status)
 {
     std::string cmd = "zscore " + key + " " + member;
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "zscore %s %s", key.c_str(), member.c_str());
     
     if (!this->m_reply) 
     {
@@ -182,7 +207,8 @@ int redisAsyncContext::Zstatus(const std::string &key, const std::string &member
 bool redisAsyncContext::Zexists(const std::string &key, const std::string &member)
 {
     std::string cmd = "zrank " + key + " " + member;
-    this->m_reply = (redisReply *) redisCommand(this->m_connettion,cmd.c_str());
+    // this->m_reply = (redisReply *) redisCommand(this->m_connettion,cmd.c_str());
+    this->m_reply = (redisReply *) redisCommand(this->m_connettion, "zrank %s %s", key.c_str(), member.c_str());
     bool exists = (this->m_reply->type != REDIS_REPLY_NIL);
     freeReplyObject(this->m_reply);
     return exists;
@@ -191,7 +217,8 @@ bool redisAsyncContext::Zexists(const std::string &key, const std::string &membe
 int redisAsyncContext::Zclear(const std::string &key)
 {
     std::string cmd = "del " + key;
-    this->m_reply = (redisReply *) redisCommand(this->m_connettion,cmd.c_str());
+    // this->m_reply = (redisReply *) redisCommand(this->m_connettion,cmd.c_str());
+    this->m_reply = (redisReply *) redisCommand(this->m_connettion, "del %s", key.c_str());
     int status = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return status;
@@ -200,17 +227,31 @@ int redisAsyncContext::Zclear(const std::string &key)
 //列表的相关操作
 int redisAsyncContext::Lpush(const std::string &key, const std::string &value)
 {
-    std::string cmd = "lpush " + key + " " + value;
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    //std::string cmd = "lpush " + key + " " + value;
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "LPUSH %s %s", key.c_str(), value.c_str());
+     // 检查 m_reply 是否为 NULL
+    if (this->m_reply == NULL) {
+        std::cerr << "Error: redisCommand returned NULL" << std::endl;
+        return -1; // 或其他合适的错误值
+    }
+
+    // 检查 m_reply 类型
+    if (this->m_reply->type != REDIS_REPLY_INTEGER) {
+        std::cerr << "Error: Expected integer reply" << std::endl;
+        freeReplyObject(this->m_reply);
+        return -1; // 或其他合适的错误值
+    }
     int num  = this->m_reply->integer;
     freeReplyObject(this->m_reply);
+    std::cout << "G" << std::endl;
     return num;
 }
 
 int redisAsyncContext::Llen(const std::string &key)
 {
     std::string cmd = "llen " + key;
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "llen %s", key.c_str());
     int num = this->m_reply->integer;
     freeReplyObject(this->m_reply);
     return num;
@@ -219,7 +260,8 @@ int redisAsyncContext::Llen(const std::string &key)
 std::vector<std::string> redisAsyncContext::Lrange(const std::string &key, int start, int stop)
 {
     std::string cmd = "lrange " + key + " " + std::to_string(start) + " " + std::to_string(stop);
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "lrange %s %d %d", key.c_str(), start, stop);
     std::vector<std::string> values;
     if(this->m_reply->type == REDIS_REPLY_ARRAY)
     {
@@ -235,7 +277,8 @@ std::vector<std::string> redisAsyncContext::Lrange(const std::string &key, int s
 int redisAsyncContext::Ltrim(const std::string &key, int start, int stop)
 {
     std::string cmd = "ltrim " + key + " " + std::to_string(start) + " " + std::to_string(stop);
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "ltrim %s %d %d", key.c_str(), start, stop);
     int status = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return status;
@@ -244,7 +287,8 @@ int redisAsyncContext::Ltrim(const std::string &key, int start, int stop)
 std::string redisAsyncContext::Lpop(const std::string &key)
 {
     std::string cmd = "lpop " + key;
-    this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "lpop %s", key.c_str());
     std::string value ;
     if(this->m_reply->type == REDIS_REPLY_STRING)
     {

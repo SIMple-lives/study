@@ -19,6 +19,7 @@ public:
     int Insert(const std::string &key,const std::string &field);//插入集合
     int Ifexit(const std::string &key,const std::string &field);//判断集合是否存在某个成员
     int Delevalue(const std::string &key, const std::string &value);//删除
+    int DeleAll(const std::string &key);//删除集合
     //有序集合的相关操作
     int Zadd(const std::string &key,int score,const std::string &member);//向有序集合添加成员，或者更新已存在成员的状态
     int Zadd(const std::string &key,std::string score,const std::string &member);//向有序集合添加成员，或者更新已存在成员的状态
