@@ -1,5 +1,6 @@
 #include "../head/head.hpp"
 #include "../head/define.hpp"
+
 class Sql 
 {
 public:
@@ -19,26 +20,84 @@ public:
             return;
         }
          
-        if(!creatable())
-        {
-            std::cerr << "mysql: create table failed" << std::endl;
+        if (!createChatNamesTable()) {
+            std::cerr << "mysql: create table chat_names failed" << std::endl;
             mysql_close(this->connection);
             return;
         }
-        
+        std::cout << "mysql: connect success" << std::endl;
     }
 
-    bool insertChat(const std::string &sender_id, const std::string &receiver_id, const std::string &message_text)
+    bool addChatName(const std::string &chat_name) 
     {
-        std::string query = "INSERT INTO chat_history(sender_id, receiver_id, message_text) VALUES('" + sender_id + "','" + receiver_id + "','" + message_text + "')";
-        if(mysql_query(this->connection, query.c_str()))
+        std::string query = "INSERT INTO chat_names (name) VALUES('" + chat_name + "')";
+        if (mysql_query(this->connection, query.c_str())) 
         {
-            std::cerr << "mysql: insert failed" << mysql_error(this->connection) << std::endl;
+            std::cerr << "mysql: insert chat name failed " << mysql_error(this->connection) << std::endl;
             return false;
         }
-        return true;   
+        return true;
     }
-    
+
+    bool insertChat(const std::string &table_name, const std::string &message_text) 
+    {
+        if (!createChatHistoryTable(table_name)) 
+        {
+            std::cerr << "mysql: create chat history table failed" << std::endl;
+            return false;
+        }
+        std::string query = "INSERT INTO " + table_name + " (message_text) VALUES('" + message_text + "')";
+        if (mysql_query(this->connection, query.c_str())) 
+        {
+            std::cerr << "mysql: insert failed " << mysql_error(this->connection) << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+    bool insertMultipleChats(const std::string &table_name, const std::vector<std::string> &messages) {
+        if (!createChatHistoryTable(table_name)) 
+        {
+            std::cerr << "mysql: create chat history table failed" << std::endl;
+            return false;
+        }
+        for (const auto &message : messages) 
+        {
+            std::string query = "INSERT INTO " + table_name + " (message_text) VALUES('" + message + "')";
+            if (mysql_query(this->connection, query.c_str())) 
+            {
+                std::cerr << "mysql: insert failed " << mysql_error(this->connection) << std::endl;
+                return false;
+            }
+        }
+        return true;
+    }
+    std::vector<std::string> getChatHistory(const std::string &table_name) 
+    {
+        std::vector<std::string> messages;
+        std::string query = "SELECT message_text FROM " + table_name;
+        if (mysql_query(this->connection, query.c_str())) 
+        {
+            std::cerr << "mysql: select failed " << mysql_error(this->connection) << std::endl;
+            return std::vector<std::string>();
+        }
+
+        MYSQL_RES *result = mysql_store_result(this->connection);
+        if (result == nullptr) 
+        {
+            std::cerr << "mysql: store result failed " << mysql_error(this->connection) << std::endl;
+            return messages;
+        }
+
+        MYSQL_ROW row;
+        while ((row = mysql_fetch_row(result))) 
+        {
+            messages.push_back(row[0]);
+        }
+
+        mysql_free_result(result);
+        return messages;
+    }
     
     ~Sql() 
     {
@@ -47,19 +106,31 @@ public:
             mysql_close(this->connection);
         }
     }
+
 private:
     MYSQL *connection; // 数据库连接
 
-    bool creatable()
+     bool createChatHistoryTable(const std::string &table_name) {
+        std::string query = "CREATE TABLE IF NOT EXISTS " + table_name + R"(
+            (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                message_text TEXT NOT NULL,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        )";
+        if (mysql_query(this->connection, query.c_str())) {
+            std::cerr << "mysql: table creation failed " << mysql_error(this->connection) << std::endl;
+            return false;
+        }
+        return true;
+    }
+    bool createChatNamesTable() 
     {
-        const char * query=R"(CREATE TABLE IF NOT EXISTS chat_history(
+        const char *query = R"(CREATE TABLE IF NOT EXISTS chat_names(
             id INT AUTO_INCREMENT PRIMARY KEY,
-            sender_id VARCHAR(50) NOT NULL,
-            receiver_id VARCHAR(50) NOT NULL,
-            message_text TEXT,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            name VARCHAR(255) UNIQUE NOT NULL
         ))";
-        if(mysql_query(this->connection,query))
+        if (mysql_query(this->connection, query)) 
         {
             std::cerr << "mysql: table creation failed " << mysql_error(this->connection) << std::endl;
             return false;
@@ -67,5 +138,3 @@ private:
         return true;
     }
 };
-
-
