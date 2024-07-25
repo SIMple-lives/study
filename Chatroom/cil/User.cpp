@@ -53,15 +53,15 @@ void Users::Singup(int fd)
             r.recv_cil(fd, id);
             std::cout << "\033[31m你的账号id为 : " << id << "\033[0m "<< std::endl;
             Update(id, username, password, questions, que_ans, telephone);
-            int ok;
+            std::string ok;
             do {
                 std::cout << "\033[31m请确认注册信息是否记住 : \033[0m" << std::endl;
                 std::cout << "\033[31m用户名 : " << username << "\033[0m" << std::endl;
                 std::cout << "\033[31m密码 : " << password << "\033[0m" << std::endl;
                 std::cout << "\033[31mid: " << id << "\033[0m" << std::endl;
-                std::cout << "Are You Remember ?";
+                std::cout << "Are You Remember(y/n) ?";
                 std::cin >> ok;
-            }while (!ok);
+            }while (ok!="y");
             system("clear");
         } 
         else if(status == FAILURE) 
@@ -257,74 +257,86 @@ void Users::Exit(int fd)
 
 void Users::Work(int fd)
 {
-    int choice =0;
+    int choice =1;
+    std::string ch;
     User_work user_work(fd,this->id);
     do 
     {
         this->showUser();
-        std::cin >> choice;
-        switch (choice)
+        std::cin >> ch;
+        if (ch == "1")
         {
-            case 1:
-                user_work.AddFriend();
-                break;
-            case 2:
-                user_work.ViewFriendRequest();
-                break;
-            case 3:
-                user_work.PrivateChat();
-                break;
-            case 4:
-                user_work.ViewFriends();
-                break;
-            case 5:
-                user_work.ViewFriendInfo();
-                break;
-            case 6:
-                user_work.BlockFriend();
-                break;
-            case 7:
-                user_work.ViewBlockedList();
-                break;
-            case 8:
-                user_work.DeleteFriend();
-                break;
-            case 9:
-                user_work.ViewPersonalInfo();
-                std::cout << "dsadasda" << std::endl;
-                break;
-            case 10:
-                user_work.GroupChat();
-                break;
-            case 11:
-                user_work.Refresh();
-                break;
-            case 12:
+            user_work.AddFriend();
+        }
+        else if (ch == "2")
+        {
+            user_work.ViewFriendRequest();
+        }
+        else if (ch == "3")
+        {
+            user_work.PrivateChat();
+        }
+        else if (ch == "4")
+        {
+            user_work.ViewFriends();
+        }
+        else if (ch == "5")
+        {
+            user_work.ViewFriendInfo();
+        }
+        else if (ch == "6")
+        {
+            user_work.BlockFriend();
+        }
+        else if (ch == "7")
+        {
+            user_work.ViewBlockedList();
+        }
+        else if (ch == "8")
+        {
+            user_work.DeleteFriend();
+        }
+        else if (ch == "9")
+        {
+            user_work.ViewPersonalInfo();
+            std::cout << "dsadasda" << std::endl;
+        }
+        else if (ch == "10")
+        {
+            user_work.GroupChat();
+        }
+        else if (ch == "11")
+        {
+            user_work.Refresh();
+        }
+        else if (ch == "12")
+        {
+            // user_work.ViewFriends();
+            // user_work.List_Group(this->id, fd);
+            File f(fd,this->id);
+            f.Run();
+        }
+        else if (ch == "13")
+        {
+            user_work.show_History();
+        }
+        else if (ch == "14")
+        {
+            user_work.Quit();
+            return;
+        }
+        else
+        {
+            //system("clear");
+            std::cout << "Invalid choice" << std::endl;
+            std::cout << "IF YOU WANT TO EXIT(y/n) ?" << std::endl;
+            std::string  ok;
+            std::cin >> ok;
+            if(ok=="y")
             {
-                // user_work.ViewFriends();
-                // user_work.List_Group(this->id, fd);
-                File f(fd,this->id);
-                f.Run();
-                break;
-            }
-            case 13:
-                user_work.show_History();
-                break;
-            case 14: 
+                choice = 0;
                 user_work.Quit();
-                return;
-            default:
-                //system("clear");
-                std::cout << "Invalid choice" << std::endl;
-                std::cout << "IF YOU WANT TO EXIT ?" << std::endl;
-                int ok;
-                std::cin >> ok;
-                if(ok)
-                {
-                    choice = 0;
-                    user_work.Quit();
-                }
-                break;
+            }
         }
     }while (choice);
 }

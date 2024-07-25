@@ -107,24 +107,25 @@ void User_work::handleFriendRequset(std::vector<std::string> &id,std::vector<std
         std::cout << "Enter 1 to accept, Enter 2 to reject, Enter 3 to ignore: ";
         Sen s;
         std::cout << "Enter your choice: ";
-        int choice ;
+        std::string  choice ;
         std::cin >> choice;
-        if(choice ==1)
+        int ch;
+        if(choice == "1")
         {
-            choice =ACCEPT;
+            ch =ACCEPT;
         }
-        else if(choice ==2)
+        else if(choice == "2")
         {
-            choice =REFUSE;
+            ch =REFUSE;
         }
         else 
         {
-            choice =IGNORE;
+            ch =IGNORE;
         }
         nlohmann::json js1 = {{"id",this->m_id},
         {REQUEST,HANDLEFRIENDREQUSET},  
         {"friend_id",id[i]},
-        {"choice",choice}};
+        {"choice",ch}};
         s.send_cil(this->m_fd,js1.dump());
     }
 }
@@ -208,59 +209,60 @@ void User_work::UnBlockFriend(std::string  &friend_id)
 // void Dele_Group(std::string id,int fd);
 void User_work::GroupChat()
 {
+    std::string ch;
     int choice ;
     do
     {
         this->showGroups();
         std::cout << "Enter your choice: ";
-        std::cin >> choice;
-        if(choice ==1)
+        std::cin >> ch;
+        if(ch =="1")
         {
             Creat_Group(this->m_id,this->m_fd);
         }
-        else if(choice ==2)
+        else if(ch =="2")
         {
             Join_Group(this->m_id, this->m_fd);
         }
-        else if(choice ==3)
+        else if(ch =="3")
         {
             Quit_Group(this->m_id, this->m_fd);
         }
-        else if(choice ==4)
+        else if(ch =="4")
         {
             List_Group(this->m_id, this->m_fd);
         }
-        else if(choice ==5)
+        else if(ch =="5")
         {
             Dele_Group(this->m_id, this->m_fd);
         }
-        else if(choice ==6)
+        else if(ch =="6")
         {
             Member_Group(this->m_id,this->m_fd);
         }
-        else if(choice ==7)
+        else if(ch =="7")
         {
             Chat_Group(this->m_id, this->m_fd);
         }
-        else if(choice ==8)
+        else if(ch =="8")
         {
-            choice = 0;
+            choice =0 ;
         }
-        else if(choice == 9 )
+        else if(ch == "9" )
         {
             Handle_Group_Requset(this->m_id, this->m_fd);
         }
-        else if(choice == 10)
+        else if(ch == "10")
         {
             Manage_Group(this->m_id, this->m_fd);
         }
         else 
         {
             std::cout << "Invalid choice" << std::endl;
-            int ok;
-            std::cout << "Enter 1 to Exit1"<<std::endl;
+            std::cout << "Do you want to continue? y/n" << std::endl;
+            std::string ok;
             std::cin >> ok;
-            if(ok)
+            if(ok=="y")
             {
                 choice = 0;
             }
@@ -489,14 +491,22 @@ void User_work::Refresh()
     {
         std::string sign;
         r.recv_cil(this->m_fd,sign);
+        // std::cout << sign << std::endl;
         nlohmann::json js = nlohmann::json::parse(sign);
         std::vector<std::string> msg = js["send"];
         std::vector<std::string> Gmsg = js["Gsend"];
+        std::vector<std::string> Smsg = js["Ssend"];
+        int length = js["Length"];
+        std::cout << "你有 " << length << " 个文件可以接收" << std::endl;
         for(auto i:msg)
         {
             std::cout << i << std::endl;
         }
         for(auto i:Gmsg)
+        {
+            std::cout << i << std::endl;
+        }
+        for(auto i:Smsg)
         {
             std::cout << i << std::endl;
         }
@@ -686,7 +696,7 @@ void User_work::Handle_Group_Requset(std::string id,int fd)
         {
             std::cout << ids[i] << std::endl;
             std::cout << msgs[i] << std::endl;
-            std::cout << "是否同意" << std::endl;
+            std::cout << "是否同意(y/n)" << std::endl;
             std::string agree;
             std::cin >> agree;
             if(agree == "y")
@@ -745,6 +755,12 @@ void User_work::Handle_Group_Requset(std::string id,int fd)
 
 void User_work::Chat_Group(std::string id,int fd)
 {
+    this->m_running = false;
+    if(this->refreshThread.joinable())
+    {
+        std::cout << "正在关闭" << std::endl;
+        this->refreshThread.join();
+    }
     std::string group_id;
     std::cout << "请输入群聊id" << std::endl;
     std::cin >> group_id;
@@ -775,6 +791,8 @@ void User_work::Chat_Group(std::string id,int fd)
     {
     
     }
+    this->m_running = true;
+    this->start();
 }
 
 void User_work::List_Group(std::string id,int fd)
