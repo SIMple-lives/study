@@ -131,10 +131,12 @@ void User_work::handleFriendRequset(std::vector<std::string> &id,std::vector<std
 
 void User_work::PrivateChat()
 {
-    // if(this->refreshThread.joinable())
-    // {
-    //     this->refreshThread.join();
-    // }
+    this->m_running = false;
+    if(this->refreshThread.joinable())
+    {
+        std::cout << "正在关闭" << std::endl;
+        this->refreshThread.join();
+    }
     std::cout << "Enter the id of the friend you want to chat: ";
     std::string id;
     std::cin >> id;
@@ -143,6 +145,7 @@ void User_work::PrivateChat()
     {"friend_id",id}};
     Sen s;
     s.send_cil(this->m_fd,js.dump());
+    
     Rec r;
     int status;
     status = r.recv_ok(this->m_fd);
@@ -167,7 +170,8 @@ void User_work::PrivateChat()
             this->UnBlockFriend(id);
         }
     }
-    // this->start();
+    this->m_running = true;
+    this->start();
 }
 
 void User_work::UnBlockFriend(std::string  &friend_id)
@@ -1038,6 +1042,14 @@ void User_work::show_History()
     else if(status == NOFRIEND)
     {
         std::cout << "你不在该好友列表" << std::endl;
+    }
+    else if(status == NOMESSAGES)
+    {
+        std::cout << "你两好像不太熟，没有记录" << std::endl;
+    }
+    else if(status == NOHISTORY)
+    {
+        std::cout << "这个群聊好像不太活跃" << std::endl;
     }
     else if(status == SUCCESS)
     {

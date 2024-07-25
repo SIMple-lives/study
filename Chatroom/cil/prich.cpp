@@ -197,6 +197,7 @@ void Prich::run_Group()
                     }
                     else if (c == '\x1B') // ASCII for Esc
                     {
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                         try
                         {
                             Sen s;
@@ -230,7 +231,8 @@ void Prich::run_Group()
                 // If input is not empty, process it
                 if (!userInput.empty())
                 {
-                    if(userInput.size()>4096)
+                    std::cout << userInput << std::endl;
+                    if(userInput.size()>10)
                     {
                         std::cout << "\033[31mYour message is too long!\033[0m" << std::endl;
                         continue;

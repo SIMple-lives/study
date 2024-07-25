@@ -11,12 +11,12 @@ public:
     User_work() :m_fd(0) ,m_id("") ,m_running(true)
     {
         
-        // start();
+        start();
     }
     User_work(int fd,std::string id) :m_fd(fd),m_id(id),m_running(true)
     {
         
-        // start();
+         start();
     }
 
     ~User_work()
@@ -150,7 +150,7 @@ public:
 
 private:
 
-    void statr()
+    void start()
     {
         this->refreshThread = std::thread(&User_work::refresh_time,this);
     }
