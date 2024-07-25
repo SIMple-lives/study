@@ -113,3 +113,6 @@
 
 
 #define FILENOTEXISTS 74
+
+#define NOMESSAGES 82
+#define NOHISTORY 83
