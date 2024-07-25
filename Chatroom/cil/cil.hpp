@@ -50,62 +50,66 @@ public:
     }
     
     void run() 
+{
+    try 
     {
-        try 
+        int choice = 1;
+        do 
         {
-            int choice = 0;
-            do 
+            this->show_menu();
+            std::string ch;
+            std::cin >> ch;
+            
+            if (ch == "1")
             {
-                this->show_menu();
-                std::cin >> choice;
-                switch (choice) 
+                system("clear");
+                this->showLogin();
+                this->m_users.Login(this->m_socket_fd);
+            }
+            else if (ch == "2")
+            {
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                system("clear");
+                this->showEnroll();
+                this->m_users.Singup(this->m_socket_fd);
+            }
+            else if (ch == "3")
+            {
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                system("clear");
+                this->showLogout();
+                this->m_users.Logout(this->m_socket_fd);
+            }
+            else if (ch == "4")
+            {
+                system("clear");
+                this->showExit();
+                this->m_users.Exit(this->m_socket_fd);
+                choice = 0;
+            }
+            else
+            {
+                system("clear");
+                std::cout << "Invalid choice" << std::endl;
+                std::cout << "IF YOU WANT TO EXIT (y/n)?" << std::endl;
+                std::string ok;
+                std::cin >> ok;
+                if (ok=="y")
                 {
-                    case 1:
-                        system("clear");
-                        this->showLogin();
-                        this->m_users.Login(this->m_socket_fd);
-                        break;
-                    case 2:
-                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                        system("clear");
-                        this->showEnroll();
-                        this->m_users.Singup(this->m_socket_fd);
-                        break;
-                    case 3:
-                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                        system("clear");
-                        this->showLogout();
-                        this->m_users.Logout(this->m_socket_fd);
-                        break;
-                    case 4:
-                        system("clear");
-                        this->showExit();
-                        this->m_users.Exit(this->m_socket_fd);
-                        choice =0;
-                        break;
-                    default: 
-                    {
-                        system("clear");
-                        std::cout << "Invalid choice" << std::endl;
-                        std::cout << "IF YOU WANT TO EXIT ?" << std::endl;
-                        int ok;
-                        std::cin >> ok;
-                        if (ok) {
-                            system("clear");
-                            this->showExit();
-                            choice = 0;
-                            this->m_users.Exit(this->m_socket_fd);
-                        }
-                        break;
-                    }
+                    system("clear");
+                    this->showExit();
+                    choice = 0;
+                    this->m_users.Exit(this->m_socket_fd);
                 }
-            } while (choice);
-        } 
-        catch (const std::exception& e) 
-        {
-            std::cerr << "Exception caught during run-time: " << e.what() << std::endl;
-        }
+            }
+        } while (choice);
+    } 
+    catch (const std::exception& e) 
+    {
+        std::cerr << "Exception caught during run-time: " << e.what() << std::endl;
     }
+}
+
 
     ~cilent()
     {
