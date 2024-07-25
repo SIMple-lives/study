@@ -35,6 +35,7 @@ public:
     std::vector<std::string> Lrange(const std::string &key,int start,int stop);//返回列表指定区间的成员
     int Ltrim(const std::string &key,int start,int stop);//只保留指定区间内的元素
     std::string Lpop(const std::string &key);
+    int L_Ifexist(const std::string &key);//判断列表是否存在
 private:
     redisContext * m_connettion;
     redisReply * m_reply;

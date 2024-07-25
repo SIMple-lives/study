@@ -297,3 +297,18 @@ std::string redisAsyncContext::Lpop(const std::string &key)
     freeReplyObject(this->m_reply);
     return value;
 }
+
+int redisAsyncContext::L_Ifexist(const std::string &key)
+{
+    std::string cmd = "exists " + key;
+    // this->m_reply = (redisReply *)redisCommand(this->m_connettion, cmd.c_str());
+    this->m_reply = (redisReply *)redisCommand(this->m_connettion, "exists %s", key.c_str());
+    if(this->m_reply->type == REDIS_REPLY_INTEGER)
+    {
+        int status = this->m_reply->integer;
+        freeReplyObject(this->m_reply);
+        return status;
+    }
+    freeReplyObject(this->m_reply);
+    return 0;
+}
