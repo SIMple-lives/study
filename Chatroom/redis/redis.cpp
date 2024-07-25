@@ -26,6 +26,7 @@ int redisAsyncContext::HashExit(const std::string &key, const std::string &field
     return num;
 }
 
+
 std::string redisAsyncContext::HashGet(const std::string &key,const std::string &field)
 {
     std::string cmd = "hget " + key + " " + field;
@@ -71,6 +72,13 @@ int redisAsyncContext::HashClear(const std::string &key)
     int type = m_reply->type;
     freeReplyObject(m_reply);
     return type;
+}
+
+int redisAsyncContext::HashLen(const std::string &key)
+{
+    m_reply = (redisReply *)redisCommand(m_connettion,"HLEN %s", key.c_str());
+    freeReplyObject(m_reply);
+    return m_reply->integer;
 }
 
 //集合的相关操作

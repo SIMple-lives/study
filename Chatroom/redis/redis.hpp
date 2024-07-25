@@ -15,6 +15,7 @@ public:
     std::unordered_map<std::string, std::string> HashGetAll(const std::string &key);//获取全部值
     int HashDele(const std::string &key,const std::string &field);//删除哈希表中的字段
     int HashClear(const std::string &key);
+    int HashLen(const std::string &key);
     //集合表的相关操作
     int Insert(const std::string &key,const std::string &field);//插入集合
     int Ifexit(const std::string &key,const std::string &field);//判断集合是否存在某个成员
