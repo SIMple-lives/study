@@ -17,8 +17,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/sql
 )
 
-# Add the executable for cil
-add_executable(cil
+# Add the executable for cli
+add_executable(cli
     ${PROJECT_SOURCE_DIR}/cil/cil.cpp
     ${PROJECT_SOURCE_DIR}/cil/menu.cpp
     ${PROJECT_SOURCE_DIR}/cil/User.cpp
@@ -27,8 +27,8 @@ add_executable(cil
     ${PROJECT_SOURCE_DIR}/cil/file.cpp
 )
 
-# Link libraries for cil
-target_link_libraries(cil
+# Link libraries for cli
+target_link_libraries(cli
     hiredis
     ncurses
 )

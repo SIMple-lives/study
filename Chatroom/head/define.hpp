@@ -116,3 +116,7 @@
 
 #define NOMESSAGES 82
 #define NOHISTORY 83
+
+#define AGREE 84
+#define FRIENDSIGN 85
+#define GROUPSIGN 86
