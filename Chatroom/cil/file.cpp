@@ -24,32 +24,59 @@ void File::Menu()
 
 void File::Run()
 {
-    int choice;
+    int choice = 1 ;
+    std::string ch;
     do{
         Menu();
-        std::cin >> choice;
-        switch(choice)
+        std::cin >> ch;
+        if(ch == "1")
         {
-            case 1:
-                //Send();
-                Send_file();
-                break;
-            case 2:
-                //Receive();
-                Receive_file();
-                break;
-            case 3:
-                //Message();
-                Message_file();
-                break;
-            case 4:
-                choice = 0;
-                std::cout << "Exiting..." << std::endl;
-                break;
-            default:
-                std::cout << "Invalid choice!" << std::endl;
-                break;
+            Send_file();
+            break;
         }
+        else if(ch == "2")
+        {
+            //Receive();
+            Receive_file();
+            break;
+        }
+        else if(ch == "3")
+        {
+            Message_file();
+            break;
+        }
+        else if(ch == "4")
+        {
+            choice = 0;
+            std::cout << "Exiting..." << std::endl;
+        }
+        else
+        {
+            std::cout << "Invalid choice!" << std::endl;
+            break;
+        }
+        // switch(choice)
+        // {
+        //     case 1:
+        //         //Send();
+        //         Send_file();
+        //         break;
+        //     case 2:
+        //         //Receive();
+        //         Receive_file();
+        //         break;
+        //     case 3:
+        //         //Message();
+        //         Message_file();
+        //         break;
+        //     case 4:
+        //         choice = 0;
+        //         std::cout << "Exiting..." << std::endl;
+        //         break;
+        //     default:
+        //         std::cout << "Invalid choice!" << std::endl;
+        //         break;
+        // }
     }
     while(choice);
 }
