@@ -263,7 +263,7 @@ void File::Send_file()
     Sen sender;
     sender.send_cil(this->m_fd, js.dump());
 
-    const size_t BUFFER_SIZE = 32768;
+    const size_t BUFFER_SIZE = 131072;
     char buffer[BUFFER_SIZE];
     ssize_t bytes_sent;
     off_t offset = 0;
@@ -359,7 +359,7 @@ void File::Receive_file()
 
         int len;
         // const size_t BUFFER_SIZE = 4096;
-        char buffer[32768];
+        char buffer[131072];
         off_t total_received = 0;
 
         try
