@@ -1,6 +1,7 @@
 #include "../head/head.hpp"
 #include "../head/define.hpp"
 #include "../cil/file.hpp"
+#include <unistd.h>
 
 void Users::Update(const std::string& id, const std::string& username, const std::string& password, const std::string& questions, const std::string& que_ans, const std::string& telephone)
 {
@@ -299,7 +300,6 @@ void Users::Work(int fd)
         else if (ch == "9")
         {
             user_work.ViewPersonalInfo();
-            std::cout << "dsadasda" << std::endl;
         }
         else if (ch == "10")
         {
@@ -311,10 +311,15 @@ void Users::Work(int fd)
         }
         else if (ch == "12")
         {
-            // user_work.ViewFriends();
-            // user_work.List_Group(this->id, fd);
+            user_work.m_running = false;
+            if(user_work.refreshThread.joinable())
+            {
+                user_work.refreshThread.join();
+            }
             File f(fd,this->id);
             f.Run();
+            user_work.m_running = true;
+            user_work.start();
         }
         else if (ch == "13")
         {
