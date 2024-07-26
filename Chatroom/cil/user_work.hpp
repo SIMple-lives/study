@@ -203,7 +203,7 @@ public:
     {
         while(m_running)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::this_thread::sleep_for(std::chrono::seconds(3));
             std::unique_lock <std::mutex> lock(m_mutex);
             this->Refresh();
         }
