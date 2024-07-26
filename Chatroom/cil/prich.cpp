@@ -231,7 +231,7 @@ void Prich::run_Group()
                 // If input is not empty, process it
                 if (!userInput.empty())
                 {
-                    std::cout << userInput << std::endl;
+                    // std::cout << userInput << std::endl;
                     if(userInput.size()>4096)
                     {
                         std::cout << "\033[31mYour message is too long!\033[0m" << std::endl;

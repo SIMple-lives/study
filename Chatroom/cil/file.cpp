@@ -32,18 +32,15 @@ void File::Run()
         if(ch == "1")
         {
             Send_file();
-            break;
         }
         else if(ch == "2")
         {
             //Receive();
             Receive_file();
-            break;
         }
         else if(ch == "3")
         {
             Message_file();
-            break;
         }
         else if(ch == "4")
         {
@@ -53,32 +50,8 @@ void File::Run()
         else
         {
             std::cout << "Invalid choice!" << std::endl;
-            break;
         }
-        // switch(choice)
-        // {
-        //     case 1:
-        //         //Send();
-        //         Send_file();
-        //         break;
-        //     case 2:
-        //         //Receive();
-        //         Receive_file();
-        //         break;
-        //     case 3:
-        //         //Message();
-        //         Message_file();
-        //         break;
-        //     case 4:
-        //         choice = 0;
-        //         std::cout << "Exiting..." << std::endl;
-        //         break;
-        //     default:
-        //         std::cout << "Invalid choice!" << std::endl;
-        //         break;
-        // }
-    }
-    while(choice);
+    }while(choice);
 }
 
 void File::get_info()
@@ -143,8 +116,8 @@ void File::get_info()
         nlohmann::json get_info_json = nlohmann::json::parse(get_info);
         join = get_info_json["join"];
         j_owners = get_info_json["join_owner"];
-        nojoin = get_info_json["nojoin"];
-        no_owners = get_info_json["nojoin_owner"];
+        // nojoin = get_info_json["nojoin"];
+        // no_owners = get_info_json["nojoin_owner"];
         creat = get_info_json["creat"];
         if(creat.size()!=0)
         {
@@ -163,15 +136,15 @@ void File::get_info()
             std::cout << join[i]<< std::endl;
             std::cout << j_owners[i] << std::endl;
         }
-        if(nojoin.size()!=0)
-        {
-            system("echo \"NOJOIN\" | figlet | boxes -d c | lolcat");
-        }
-        for(int i=0;i<nojoin.size();i++)
-        {
-            std::cout << nojoin[i] << std::endl;
-            std::cout << no_owners[i] << std::endl;
-        }
+        // if(nojoin.size()!=0)
+        // {
+        //     system("echo \"NOJOIN\" | figlet | boxes -d c | lolcat");
+        // }
+        // for(int i=0;i<nojoin.size();i++)
+        // {
+        //     std::cout << nojoin[i] << std::endl;
+        //     std::cout << no_owners[i] << std::endl;
+        // }
     }
 }
 
@@ -188,18 +161,19 @@ std::string getCurrentTime()
 }
 
 void File::Send_file()
-{
+{   
+
     this->get_info();
     int status ;
     Sen s;
     Rec r;
     std::cout << "请输入要发送的对象" << std::endl;
-    int a;
+    std::string  a;
     std::cout << "1.私聊" << std::endl;
     std::cout << "2.群聊" << std::endl;
     std::cin >> a;
     std::string send_id;
-    if(a==1)
+    if(a=="1")
     {
         std::cout <<"Enter the id :" << std::endl;
         std::cin >> send_id;
@@ -210,7 +184,7 @@ void File::Send_file()
         };
         s.send_cil(this->m_fd,js.dump());
     }
-    else if(a==2)
+    else if(a=="2")
     {
         std::cout <<"Enter the id :" << std::endl;
         std::cin >> send_id;
@@ -289,7 +263,7 @@ void File::Send_file()
     Sen sender;
     sender.send_cil(this->m_fd, js.dump());
 
-    const size_t BUFFER_SIZE = 4096;
+    const size_t BUFFER_SIZE = 8192;
     char buffer[BUFFER_SIZE];
     ssize_t bytes_sent;
     off_t offset = 0;
