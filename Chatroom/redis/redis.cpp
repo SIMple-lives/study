@@ -136,8 +136,8 @@ int redisAsyncContext::Zadd(const std::string &key, int status,const std::string
 int redisAsyncContext::Zadd(const std::string &key, std::string status,const std::string &member)
 {
     std::string cmd = "zadd " + key + " " + status + " " + member;
-    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
-    this->m_reply = (redisReply*)redisCommand(this->m_connettion, "zadd %s %s %s", key.c_str(), status.c_str(), member.c_str());    
+    this->m_reply = (redisReply*)redisCommand(this->m_connettion, cmd.c_str());
+    // this->m_reply = (redisReply*)redisCommand(this->m_connettion, "zadd %s %s %s", key.c_str(), status.c_str(), member.c_str());    
     int type = this->m_reply->type;
     freeReplyObject(this->m_reply);
     return type;
