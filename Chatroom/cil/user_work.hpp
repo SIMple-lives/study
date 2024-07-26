@@ -26,6 +26,7 @@ public:
         {
             refreshThread.join();
         }
+        std::cout << "User_work is deleted" << std::endl;
     }
     virtual void show_friend(std::string id,std::string name ,std::string telephone,int status) override
     {
@@ -150,19 +151,7 @@ public:
 
 private:
 
-    void start()
-    {
-        this->refreshThread = std::thread(&User_work::refresh_time,this);
-    }
-    void refresh_time()
-    {
-        while(m_running)
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-            std::unique_lock <std::mutex> lock(m_mutex);
-            this->Refresh();
-        }
-    }
+    
 
     std::string getCurrentTime() 
     {
@@ -201,7 +190,22 @@ private:
 
     int m_fd;
     std::string m_id;
+public:
     std::thread refreshThread;
     std::atomic<bool> m_running;
     std::mutex m_mutex;
+
+    void start()
+    {
+        this->refreshThread = std::thread(&User_work::refresh_time,this);
+    }
+    void refresh_time()
+    {
+        while(m_running)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::unique_lock <std::mutex> lock(m_mutex);
+            this->Refresh();
+        }
+    }
 };

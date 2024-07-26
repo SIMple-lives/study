@@ -497,7 +497,10 @@ void User_work::Refresh()
         std::vector<std::string> Gmsg = js["Gsend"];
         std::vector<std::string> Smsg = js["Ssend"];
         int length = js["Length"];
-        std::cout << "你有 " << length << " 个文件可以接收" << std::endl;
+        if(length != 0)
+        {
+            std::cout << "你有 " << length << " 个文件可以接收" << std::endl;
+        }
         for(auto i:msg)
         {
             std::cout << i << std::endl;
@@ -567,14 +570,14 @@ void User_work::Creat_Group(std::string id,int fd)
         std::string group_id;
         r.recv_cil(fd,group_id);
         std::cout << "创建群组成功,群组ID为" << group_id << std::endl;
-        int ok;
+        std::string  ok;
         do{
             std::cout << "是否记住创建信息" << std::endl;
             std::cout << "群组名称 \033[31m" << name << "\033[0m" << std::endl;
             std::cout << "群组ID \033[31m" << group_id << "\033[0m" << std::endl;
-            std::cout << "Are You Remember ?" << std::endl;
+            std::cout << "Are You Remember ?(y/n)" << std::endl;
             std::cin >> ok;
-        }while(!ok);
+        }while(ok!="y");
     }
     else if(status == FAILURE)
     {
@@ -822,8 +825,8 @@ void User_work::List_Group(std::string id,int fd)
         nlohmann::json get_info_json = nlohmann::json::parse(get_info);
         join = get_info_json["join"];
         j_owners = get_info_json["join_owner"];
-        nojoin = get_info_json["nojoin"];
-        no_owners = get_info_json["nojoin_owner"];
+        // nojoin = get_info_json["nojoin"];
+        // no_owners = get_info_json["nojoin_owner"];
         creat = get_info_json["creat"];
         if(creat.size()!=0)
         {
@@ -842,15 +845,15 @@ void User_work::List_Group(std::string id,int fd)
             std::cout << join[i]<< std::endl;
             std::cout << j_owners[i] << std::endl;
         }
-        if(nojoin.size()!=0)
-        {
-            system("echo \"NOJOIN\" | figlet | boxes -d c | lolcat");
-        }
-        for(int i=0;i<nojoin.size();i++)
-        {
-            std::cout << nojoin[i] << std::endl;
-            std::cout << no_owners[i] << std::endl;
-        }
+        // if(nojoin.size()!=0)
+        // {
+        //     system("echo \"NOJOIN\" | figlet | boxes -d c | lolcat");
+        // }
+        // for(int i=0;i<nojoin.size();i++)
+        // {
+        //     std::cout << nojoin[i] << std::endl;
+        //     std::cout << no_owners[i] << std::endl;
+        // }
     }
 }
 
@@ -945,34 +948,32 @@ void User_work::Manage_Group(std::string id,int fd)
     std::cout << "3.解除禁言" << std::endl;
     std::cout << "4.添加管理员" << std::endl;
     std::cout << "5.取消管理员" << std::endl;
-    int operation;
+    std::string operation;
     std::cin >> operation;
-    switch(operation)
+    int ok;
+    if(operation == "1")
     {
-        case 1:
-        {
-            operation = DELESOMEONE;
-            break;
-        }
-        case 2:
-        {
-            operation = NOSPEAKSOMEONE;
-            break;
-        }
-        case 3:
-        {
-            operation = SPEAKSOMEONE;
-            break;
-        }
-        case 4:
-        {
-            operation = ADDGROUPMANGER;
-            break;
-        }
-        case 5:
-        {
-            operation = DELEGROUPMANGER;
-        }
+        ok = DELESOMEONE;
+    }
+    else if(operation == "2")
+    {
+        ok = NOSPEAKSOMEONE;
+    }
+    else if(operation == "3")
+    {
+        ok = SPEAKSOMEONE;
+    }
+    else if(operation == "4")
+    {
+        ok = ADDGROUPMANGER;
+    }
+    else if(operation == "5")
+    {
+        ok = DELEGROUPMANGER;
+    }
+    else 
+    {
+    
     }
     // if(operation == 1)
     // {
@@ -988,7 +989,7 @@ void User_work::Manage_Group(std::string id,int fd)
     // }
     nlohmann::json Manage_Group_request = {
         {"id",id},
-        {REQUEST,operation},
+        {REQUEST,ok},
         {"Group_id",group_id},
         {"User_id",user_id}
         //{"Operation",operation}
@@ -1019,7 +1020,7 @@ void User_work::Manage_Group(std::string id,int fd)
     }
     else if(status == NB)
     {
-        std::cout << "你真的是倒反天罡，删除群主" << std::endl;
+        std::cout << "你真的是倒反天罡，操作群主" << std::endl;
     }
     else if(status == NOHIGH)
     {
