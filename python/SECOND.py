@@ -25,8 +25,9 @@ for i in range(2226):
      data[i, 4] = rho_temp
      
  # 数据导出到 Excel 进行排序
-data_df = pd.DataFrame(data)
-data_df.to_excel('data.xlsx', index=False)
+#data_df = pd.DataFrame(data)
+#data_df.to_excel('data.xlsx', index=False)
+#按照从小到大排序
 
 # 排序后的数据导入程序
 data2 = pd.read_excel('data.xlsx')
