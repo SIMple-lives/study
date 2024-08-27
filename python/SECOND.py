@@ -6,25 +6,25 @@ from mpl_toolkits.mplot3d import Axes3D
 # 使用 LaTeX 渲染文本
 plt.rc('text', usetex=True)
 
-# 读取数据
+ # 读取数据
 data1 = pd.read_csv('附件1.csv', encoding='ISO-8859-1')
 data1 = np.array(data1)
 data = np.zeros((2226, 5), dtype='object')
 data[:, 0:4] = data1
 
-# 中心点坐标和单位向量计算
+ # 中心点坐标和单位向量计算
 center = np.array([-49.3194, -36.889, -294.0187])
 n_0 = -center / np.linalg.norm(center)
 node_arr = data1[:, 1:]
 
-# 计算各节点据抛物线对称轴的距离
+ # 计算各节点据抛物线对称轴的距离
 for i in range(2226):
-    vec_temp = node_arr[i, :] - center
-    h_temp = np.dot(vec_temp, n_0)
-    rho_temp = np.sqrt(np.linalg.norm(vec_temp)**2 - h_temp**2)
-    data[i, 4] = rho_temp
-
-# 数据导出到 Excel 进行排序
+     vec_temp = node_arr[i, :] - center
+     h_temp = np.dot(vec_temp, n_0)
+     rho_temp = np.sqrt(np.linalg.norm(((((((((((vec_temp)))))))))))**2 - h_temp**2)
+     data[i, 4] = rho_temp
+     
+ # 数据导出到 Excel 进行排序
 data_df = pd.DataFrame(data)
 data_df.to_excel('data.xlsx', index=False)
 
