@@ -49,4 +49,5 @@ function [k,d,r,minC,minK]=floyd(w)
         sprintf ('%s','最小总费用值minC:'),minC
         sprintf ('%s','最优顶点编号minK:'),minK
         %%%%%%%%%%完整的floyd算法%%%%%%%%%%%%%%%
+end
     
